@@ -1,9 +1,8 @@
-# This example requires the 'message_content' intent.
-
 import discord
 from discord.ext import commands
 
 intents = discord.Intents.default()
+# Add intents here if you need them
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
