@@ -3,18 +3,12 @@
 import discord
 from discord.ext import commands
 
-class MyClient(discord.Client):
-    async def on_ready(self):
-        print(f'Logged on as {self.user}!')
-
-
-    async def on_message(self, message):
-        print(f'Message from {message.author}: {message.content}')
-
 intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
+
+client = discord.Client(intents=intents)
 
 @bot.command()
 async def test(ctx, arg):
@@ -28,7 +22,7 @@ async def helloworld(ctx):
 async def ping(ctx):
     await ctx.send("pong")    
 
-client = MyClient(intents=intents)
+# insert commands here
 
 bot.run('MTIxMjUzNjc1NDIzODc4MzUyOA.GY4SF-.6j-EfrpZTkEWyejBKbm-tNAoJsDG23hAbKpvrE')
 
