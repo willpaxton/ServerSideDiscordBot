@@ -7,6 +7,7 @@ class MyClient(discord.Client):
     async def on_ready(self):
         print(f'Logged on as {self.user}!')
 
+
     async def on_message(self, message):
         print(f'Message from {message.author}: {message.content}')
 
@@ -19,7 +20,10 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 async def test(ctx, arg):
     await ctx.send(arg)
 
+@bot.command()
+async def helloworld(ctx):
+    await ctx.send("Hello, World! :D")
 
-client = MyClient(intents=intents)
-client.run('MTIxMjUzNjc1NDIzODc4MzUyOA.GY4SF-.6j-EfrpZTkEWyejBKbm-tNAoJsDG23hAbKpvrE')
+
+bot.run('MTIxMjUzNjc1NDIzODc4MzUyOA.GY4SF-.6j-EfrpZTkEWyejBKbm-tNAoJsDG23hAbKpvrE')
 
