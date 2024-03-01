@@ -28,6 +28,7 @@ async def helloworld(ctx):
 async def ping(ctx):
     await ctx.send("pong")    
 
+client = MyClient(intents=intents)
 
 bot.run('MTIxMjUzNjc1NDIzODc4MzUyOA.GY4SF-.6j-EfrpZTkEWyejBKbm-tNAoJsDG23hAbKpvrE')
 
