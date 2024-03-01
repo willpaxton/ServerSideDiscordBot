@@ -24,6 +24,10 @@ async def test(ctx, arg):
 async def helloworld(ctx):
     await ctx.send("Hello, World! :D")
 
+@bot.command()
+async def ping(ctx):
+    await ctx.send("pong")    
+
 
 bot.run('MTIxMjUzNjc1NDIzODc4MzUyOA.GY4SF-.6j-EfrpZTkEWyejBKbm-tNAoJsDG23hAbKpvrE')
 
