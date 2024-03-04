@@ -23,9 +23,11 @@ async def ping(ctx):
 
 # this not work
 @bot.command()
-async def kick(ctx, arg):
-    await ctx.send(arg)
-    await kick(user=arg )
+@commands.has_permissions(kick_members=True)
+async def kick(ctx, user: discord.Member):
+    
+    await user.kick()
+    await ctx.send(f"Kicked user {user}")
 
 # this do work
 @bot.command()
