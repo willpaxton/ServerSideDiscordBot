@@ -21,6 +21,23 @@ async def helloworld(ctx):
 async def ping(ctx):
     await ctx.send("pong")    
 
+# this not work
+@bot.command()
+async def kick(ctx, arg):
+    await ctx.send(arg)
+    await kick(user=arg )
+
+# this do work
+@bot.command()
+@commands.has_permissions(kick_members=True)
+async def kick2(ctx, user: discord.Member, *, reason: str):
+    if reason is None:
+        await user.kick()
+        await ctx.send(f"**{user}** has been kicked for **no reason**.")
+    else:
+        await user.kick(reason=reason)
+        await ctx.send(f"**{user}** has been kicked for **{reason}**.")
+
 # insert commands here
 
 bot.run('MTIxMjUzNjc1NDIzODc4MzUyOA.GY4SF-.6j-EfrpZTkEWyejBKbm-tNAoJsDG23hAbKpvrE')
