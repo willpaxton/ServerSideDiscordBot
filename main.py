@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 
+filtered_words = []
+
 intents = discord.Intents.default()
 # Add intents here if you need them
 intents.message_content = True
@@ -54,6 +56,25 @@ async def kick2(ctx, user: discord.Member, *, reason: str):
         await user.kick(reason=reason)
         await ctx.send(f"**{user}** has been kicked for **{reason}**.")
 
+
+
+@bot.command()
+async def add_filter_word(ctx, arg):
+    filtered_words.append(arg)
+    await ctx.send(f"Added the word or phrase {arg} to the filter list")
+    
+@bot.command()
+async def check_filter_word(ctx):
+    # filtered_words.add(arg)
+    filteredwords = ""
+
+
+    for x in filtered_words:
+        filteredwords += f"{x}\n"
+
+    await ctx.send(filteredwords)
+
+
 # this is a very bandaid solution
 @bot.event
 async def on_command_error(ctx, error):
@@ -68,15 +89,27 @@ async def on_command_error(ctx, error):
 #     await discord.message.channel.send("lol")
     
 
+
+
 @bot.event  
 async def on_message(message):
-    msg = message.content
     # iterate over list of "banned" words here
+
     print(f"{message.content}, {message.author}")
-    if "hi" in message.content:
+    message_words = str(message.content).split()
+    for x in filtered_words:
+        if x in message_words:
+            admin = False
+            for y in message.author.roles:
+                if y.name == "Generic Bo<T>":
+                    admin = True
+            if not admin:
+                await message.delete()
+            
         # delete message here
-        await message.channel.purge(limit = 1)
-        await message.channel.send(msg)
+        
+
+    await bot.process_commands(message)
 
 
 bot.run('MTIxMjUzNjc1NDIzODc4MzUyOA.GY4SF-.6j-EfrpZTkEWyejBKbm-tNAoJsDG23hAbKpvrE')
