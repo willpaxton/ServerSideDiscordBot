@@ -82,19 +82,30 @@ async def check_filter_word(ctx):
     await ctx.send(filteredwords)
 
 @bot.command()
-async def create_reaction_role_message(ctx, arg):
-    await ctx.send(arg)
+async def create_reaction_role_message(ctx, arg1, arg2):
+    # arg1 should be a "title"
+
+    await ctx.send(arg2)
     # ctx.guild.id
     # ctx.channel.id
     # ctx.message.id
 
     cur.execute(f"""
-    INSERT INTO REGISTERED_MESSAGES (GuildID, ChannelID, MessageID) VALUES (
-        {int(ctx.guild.id)},{int(ctx.channel.id)},{int(ctx.message.id)}
+    INSERT INTO REGISTERED_MESSAGES (GuildID, ChannelID, Title) VALUES (
+        {int(ctx.guild.id)},{int(ctx.channel.id)},{f"{arg1}"}
     )""")
     con.commit()
     # do we start doing database calls here???
-    print('hi')
+    print(f"[{arg1}] {arg2}")
+
+@bot.command()
+async def register_reaction_role(ctx, arg):
+    # how do we want to associate to a specific message???
+    # how does discord parse emojis on this side?
+    # active message command?
+
+
+    await ctx.send(f"Associated {arg} with {arg}" )
 
 # this is a very bandaid solution
 @bot.event
