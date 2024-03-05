@@ -4,6 +4,9 @@ from discord.ext import commands
 intents = discord.Intents.default()
 # Add intents here if you need them
 intents.message_content = True
+intents.reactions = True
+intents.members = True
+
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -77,6 +80,27 @@ async def on_message(message):
         # delete message here
         await message.channel.purge(limit = 1)
         await message.channel.send(msg)
+
+@bot.event
+async def on_raw_reaction_add(payload):
+    if payload.emoji.name == "🔴":
+        print(payload)
+        current_guild = bot.get_guild(int(payload.guild_id))
+        await payload.member.add_roles(current_guild.get_role(1121295903886676028))
+
+@bot.event
+async def on_raw_reaction_remove(payload):
+    if payload.emoji.name == "🔴":
+        print(payload)
+        current_guild = bot.get_guild(int(payload.guild_id))
+        current_member = current_guild.get_member(int(payload.user_id))
+        await current_member.remove_roles(current_guild.get_role(1121295903886676028))
+
+# emoji: payload.emoji.name
+# user_id: payload.user_id
+# message_id: payload.message_id
+# member object: payload.member
+# 1118237685069393981 | 1118237685069393981
 
 
 bot.run('MTIxMjUzNjc1NDIzODc4MzUyOA.GY4SF-.6j-EfrpZTkEWyejBKbm-tNAoJsDG23hAbKpvrE')
