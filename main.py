@@ -138,5 +138,5 @@ async def create_lfg_channel(ctx):
 
 
 
-bot.run('MTIxMjUzNjc1NDIzODc4MzUyOA.GY4SF-.6j-EfrpZTkEWyejBKbm-tNAoJsDG23hAbKpvrE')
+bot.run(#insert here)
 
