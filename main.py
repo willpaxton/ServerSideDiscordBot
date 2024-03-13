@@ -1,6 +1,10 @@
 import discord
 from discord.ext import commands
 import sqlite3
+from dotenv import dotenv_values
+
+
+secrets = dotenv_values(".env")
 
 con = sqlite3.connect("db.db")
 cur = con.cursor()
@@ -73,7 +77,7 @@ async def create_reaction_role_message(ctx, arg):
         {int(ctx.guild.id)},{int(ctx.channel.id)},{int(ctx.message.id)}
     )""")
     con.commit()
-    # do we start doing database calls here???
+    # do we start doing database calls here???  
     print('hi')
 
 # this is a very bandaid solution
@@ -124,5 +128,5 @@ async def on_raw_reaction_remove(payload):
 # 1118237685069393981 | 1118237685069393981
 
 
-bot.run('MTIxMjUzNjc1NDIzODc4MzUyOA.GY4SF-.6j-EfrpZTkEWyejBKbm-tNAoJsDG23hAbKpvrE')
+bot.run(secrets["API_KEY"])
 
