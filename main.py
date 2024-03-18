@@ -38,15 +38,18 @@ async def ping(ctx):
 
 # this not work
 @bot.command()
-@commands.has_permissions(kick_members=True)
-async def kick(ctx, user: discord.Member, *, reason: str):
+@commands.has_permissions(kick_members=True)    
+async def kick(ctx, user: discord.Member, *, reason: str = None):
     print(reason)
-    await user.kick(reason=reason)
+    if reason is None:
+        await user.kick(reason="No reason specified")
+    else:
+        await user.kick(reason=reason)
     await ctx.send(f"Kicked user {user}")
 
 @bot.command()
-@commands.has_permissions(kick_members=True)
-async def ban(ctx, user: discord.Member, *, reason: str):
+@commands.has_permissions(ban_members=True)
+async def ban(ctx, user: discord.Member, reason: str):
     try:
         print(reason)
         if reason == ".":
@@ -72,11 +75,13 @@ async def kick2(ctx, user: discord.Member, *, reason: str):
 
 
 @bot.command()
+@commands.has_permissions(manage_messages=True)
 async def add_filter_word(ctx, arg):
     filtered_words.append(arg)
     await ctx.send(f"Added the word or phrase {arg} to the filter list")
     
 @bot.command()
+@commands.has_permissions(manage_messages=True)
 async def check_filter_word(ctx):
     # filtered_words.add(arg)
     filteredwords = ""
@@ -88,6 +93,7 @@ async def check_filter_word(ctx):
     await ctx.send(filteredwords)
 
 @bot.command()
+@commands.has_permissions(manage_roles=True)
 async def create_reaction_role_message(ctx, arg1, arg2):
     # arg1 should be a "title"
 
@@ -103,6 +109,7 @@ async def create_reaction_role_message(ctx, arg1, arg2):
     con.commit()
 
 @bot.command()
+@commands.has_permissions(manage_roles=True)
 async def register_reaction_role(ctx, arg1, arg2, arg3):
     # arg1 is message to register
     # arg2 is emoji
@@ -130,6 +137,7 @@ async def register_reaction_role(ctx, arg1, arg2, arg3):
 
 # purges every message in a channel that is not a registered role message
 @bot.command()
+@commands.has_permissions(administrator=True)
 async def role_channel_purge(ctx):
     messages = [message async for message in ctx.channel.history()]
     res = cur.execute(f"SELECT MessageID FROM REGISTERED_MESSAGES")
