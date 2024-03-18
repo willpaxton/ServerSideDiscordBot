@@ -104,6 +104,9 @@ async def create_reaction_role_message(ctx, arg1, arg2):
 
 @bot.command()
 async def register_reaction_role(ctx, arg1, arg2, arg3):
+    # arg1 is message to register
+    # arg2 is emoji
+    # arg3 is role
     res = cur.execute(f"""SELECT MessageID FROM REGISTERED_MESSAGES WHERE
         (GuildID = {int(ctx.guild.id)} AND ChannelID = {int(ctx.channel.id)} AND Title='{arg1}');""")
     results = res.fetchall()
@@ -122,9 +125,7 @@ async def register_reaction_role(ctx, arg1, arg2, arg3):
         '{str(arg2)}',{int(arg3.replace("<", "").replace(">", "").replace("@", "").replace("&", ""))},{int(ctx.guild.id)},{int(ctx.channel.id)},'{arg1}'
     )""")
     con.commit()
-    # arg1 is message to register
-    # arg2 is emoji
-    # arg3 is role
+
     await ctx.send(f"Associated {arg2} with {arg1}" )
 
 # purges every message in a channel that is not a registered role message
