@@ -169,6 +169,37 @@ async def role_channel_purge(ctx):
 async def on_command_error(ctx, error):
     await ctx.send(f"An error occured: {str(error)}")
 # insert commands here
+
+########################################### WELCOME DISPLAY ##############################################
+# Ready an event for when the bot joins
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user.name}')
+
+# Runs the welcome event, once the user joins the server
+@bot.event
+async def on_member_join(member):
+    # Send a welcome
+    await member.send(f'Welcome to the server, {member.name}!')
+    
+# The following code basically checks to see if the bot has the send messages bot permission in order to send the welcome display
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user.name}')
+    # Checks out the bots permissions
+    await check_permissions()
+
+async def check_permissions():
+    # Get the bot's own member object from a server
+    guild = bot.get_guild(SERVER_ID) # Will need to replace SERVER_ID with our actual discord server ID (PLACEHOLDER)
+    bot_member = guild.get_member(bot.user.id)
+
+    # Check if the bot has permission to send messages
+    if bot_member.guild_permissions.send_messages:
+        print("Bot has permission to send messages.")
+    else:
+        print("Bot does not have permission to send messages.")
+
     
 
 
@@ -417,6 +448,7 @@ async def on_raw_reaction_remove(payload):
 # message_id: payload.message_id
 # member object: payload.member
 # 1118237685069393981 | 1118237685069393981
+
 
 
 bot.run(secrets["API_KEY"])
