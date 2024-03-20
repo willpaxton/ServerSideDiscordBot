@@ -423,5 +423,26 @@ async def leave_lfg_channel(ctx):
     else:
         await ctx.send("You are not in a voice channel.")
 
+@bot.command(name='bothelp')
+async def help_send_message(ctx):
+    await ctx.send("""!ping - Replies with pong; mostly used to check if the bot is online
+### Moderation Tools
+!kick - Kicks a member from the server. Usage: !kick [user to kick]
+!ban - Bans a member from the server. Usage: !ban [user to ban]
+!add_filer_word - Adds words to a filter list.  Usage: !add_filter_word [word to filter]
+### Role Manager
+!create_reaction_role_message - Creates a bot message that will be used to assign reactions to this message to given rules.  Usage: !create_reaction_role_message [Title of Message] Message Content]
+!register_reaction_role - Adds a reaction to the role message. Usage: !register_reaction_role [Title of Message to Add Reaction To] [Emoji] [@Role]
+!role_channel_purge - Removes all non-registered messages from a given channel
+### Events
+!toggledailyreminder - Toggles whether the bot will sent out messages reminding the server of events
+!addevent - Adds an event to the server's event list.  Usage: !addvent [date] [event description]
+!listevents - Lists the events in a server
+### Looking For Group
+!createlfg - Creates a voice channel for people looking for group
+!deletelfg - Removes the LFG voice channel
+!joinlfg - Moves the user into the LFG voice channel
+!leavelfg - Removes the user from the LFG voice channel')""")
+
 bot.run(secrets["API_KEY"])
 
