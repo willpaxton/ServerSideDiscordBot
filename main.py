@@ -41,7 +41,7 @@ async def helloworld(ctx):
 async def ping(ctx):
     await ctx.send("pong")    
 
-# this not work
+# kick
 @bot.command()
 @commands.has_permissions(kick_members=True)    
 async def kick(ctx, user: discord.Member, *, reason: str = None):
@@ -52,6 +52,7 @@ async def kick(ctx, user: discord.Member, *, reason: str = None):
         await user.kick(reason=reason)
     await ctx.send(f"Kicked user {user}")
 
+# ban
 @bot.command()
 @commands.has_permissions(ban_members=True)
 async def ban(ctx, user: discord.Member, reason: str):
@@ -66,25 +67,15 @@ async def ban(ctx, user: discord.Member, reason: str):
         await ctx.send("Please provide a reason.")
 
 
-# this do work
-@bot.command()
-@commands.has_permissions(kick_members=True)
-async def kick2(ctx, user: discord.Member, *, reason: str):
-    if reason is None:
-        await user.kick()
-        await ctx.send(f"**{user}** has been kicked for **no reason**.")
-    else:
-        await user.kick(reason=reason)
-        await ctx.send(f"**{user}** has been kicked for **{reason}**.")
 
-
-
+# add word to filter
 @bot.command()
 @commands.has_permissions(manage_messages=True)
 async def add_filter_word(ctx, arg):
     filtered_words.append(arg)
     await ctx.send(f"Added the word or phrase {arg} to the filter list")
     
+# check filter
 @bot.command()
 @commands.has_permissions(manage_messages=True)
 async def check_filter_word(ctx):
@@ -97,6 +88,7 @@ async def check_filter_word(ctx):
 
     await ctx.send(filteredwords)
 
+# create role message
 @bot.command()
 @commands.has_permissions(manage_roles=True)
 async def create_reaction_role_message(ctx, arg1, arg2):
@@ -113,6 +105,7 @@ async def create_reaction_role_message(ctx, arg1, arg2):
     )""")
     con.commit()
 
+# register reaction
 @bot.command()
 @commands.has_permissions(manage_roles=True)
 async def register_reaction_role(ctx, arg1, arg2, arg3):
@@ -164,17 +157,91 @@ async def role_channel_purge(ctx):
 
 
 
-# this is a very bandaid solution
+# error handling thats a bit cleaner
 @bot.event
 async def on_command_error(ctx, error):
     await ctx.send(f"An error occured: {str(error)}")
-# insert commands here
+    
+
+# event messages
+@bot.event  
+async def on_message(message):
+    # iterate over list of "banned" words here
+
+    print(f"{message.content}, {message.author}")
+    message_words = str(message.content).split()
+    for x in filtered_words:
+        if x in message_words:
+            admin = False
+            for y in message.author.roles:
+                if y.name == "Generic Bo<T>":
+                    admin = True
+            if not admin:
+                await message.delete()
+            
+        # delete message here
+        
+        await message.channel.purge(limit = 1)
+        await message.channel.send(msg)
+    await bot.process_commands(message)
+
+@bot.event
+async def on_raw_reaction_add(payload):
+    print(payload)
+    res = cur.execute(f"""SELECT Title FROM REGISTERED_MESSAGES WHERE
+        (GuildID = {int(payload.guild_id)} AND ChannelID = {int(payload.channel_id)} AND MessageID = {int(payload.message_id)});""")
+    results = res.fetchall()
+    
+    try:
+        title = results[0][0]
+        res = cur.execute(f"""SELECT RoleID FROM REGISTERED_REACTIONS WHERE
+        (GuildID = {int(payload.guild_id)} AND ChannelID = {int(payload.channel_id)} AND Title = '{title}');""")
+        results = res.fetchall()
+        try:
+            roleID = results[0][0]
+            current_guild = bot.get_guild(int(payload.guild_id))
+            await payload.member.add_roles(current_guild.get_role(roleID))
+        except:
+            print("no role associated")
+        # if payload.emoji.name == "🔴":
+        #     print(payload)
+        #     current_guild = bot.get_guild(int(payload.guild_id))
+        #     await payload.member.add_roles(current_guild.get_role(1121295903886676028))
+    except Exception as e:
+        print(f"no roles found {e}")
+
+    
+
+
+@bot.event
+async def on_raw_reaction_remove(payload):
+    print(payload)
+    res = cur.execute(f"""SELECT Title FROM REGISTERED_MESSAGES WHERE
+        (GuildID = {int(payload.guild_id)} AND ChannelID = {int(payload.channel_id)} AND MessageID = {int(payload.message_id)});""")
+    results = res.fetchall()
+    
+    try:
+        title = results[0][0]
+        res = cur.execute(f"""SELECT RoleID FROM REGISTERED_REACTIONS WHERE
+        (GuildID = {int(payload.guild_id)} AND ChannelID = {int(payload.channel_id)} AND Title = '{title}');""")
+        results = res.fetchall()
+        try:
+            roleID = results[0][0]
+            current_guild = bot.get_guild(int(payload.guild_id))
+            current_member = current_guild.get_member(int(payload.user_id))
+            await current_member.remove_roles(current_guild.get_role(roleID))
+        except Exception as e:
+            print(f"no role associated {e}")
+        # if payload.emoji.name == "🔴":
+        #     print(payload)
+        #     current_guild = bot.get_guild(int(payload.guild_id))
+        #     await payload.member.add_roles(current_guild.get_role(1121295903886676028))
+    except Exception as e:
+        print(f"no roles found {e}")
 
 ########################################### WELCOME DISPLAY ##############################################
 # Ready an event for when the bot joins
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user.name}')
+
 
 # Runs the welcome event, once the user joins the server
 @bot.event
@@ -183,15 +250,13 @@ async def on_member_join(member):
     await member.send(f'Welcome to the server, {member.name}!')
     
 # The following code basically checks to see if the bot has the send messages bot permission in order to send the welcome display
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user.name}')
+
     # Checks out the bots permissions
-    await check_permissions()
+    
 
 async def check_permissions():
     # Get the bot's own member object from a server
-    guild = bot.get_guild(SERVER_ID) # Will need to replace SERVER_ID with our actual discord server ID (PLACEHOLDER)
+    guild = bot.get_guild(1210344585134477372) # Will need to replace SERVER_ID with our actual discord server ID (PLACEHOLDER)
     bot_member = guild.get_member(bot.user.id)
 
     # Check if the bot has permission to send messages
@@ -221,17 +286,18 @@ except FileNotFoundError:
 async def on_ready():
     print(f'Logged in as {bot.user.name} ({bot.user.id})')
     print('------')
+    await check_permissions()
     daily_reminder.start()
 
 daily_reminder_enabled = True
 
 #will send event list to whichever channel
-@tasks.loop(hours=24)  #works with minutes=1, can be set to anything i think
+@tasks.loop(minutes=1)  #works with minutes=1, can be set to anything i think
 async def daily_reminder():
     if daily_reminder_enabled:
         # send a message to the server with all events
         if events:
-            channel_id = 1214443284131217508
+            channel_id = 1118237685631434894
             channel = bot.get_channel(channel_id)
             await channel.send("All Events:\n" + ', '.join([f"{event['description']} on {event['date']}" for event in events]))
         else:
@@ -336,11 +402,14 @@ async def join_lfg_channel(ctx):
     guild = ctx.guild
     lfg_channel = discord.utils.get(guild.voice_channels, name='LFG')
 
-    if lfg_channel:
-        await ctx.author.move_to(lfg_channel)
-        await ctx.send(f"You have joined the LFG channel: {lfg_channel.mention}")
-    else:
-        await ctx.send("No LFG voice channel found.")
+    try: 
+        if lfg_channel:
+            await ctx.author.move_to(lfg_channel)
+            await ctx.send(f"You have joined the LFG channel: {lfg_channel.mention}")
+        else:
+            await ctx.send("No LFG voice channel found.")
+    except:
+        await ctx.send("Please join a voice channel before being moved to LFG.")
 
 
 #same for this, but the cmd still works 
@@ -353,103 +422,6 @@ async def leave_lfg_channel(ctx):
         await ctx.send("You have left the current voice channel.")
     else:
         await ctx.send("You are not in a voice channel.")
-
-
-
-
-# ctx is <discord.ext.commands.context.Context object at 0x00000257BFB1D780>
-
-# @bot.event
-# async def on_message(ctx):
-#     print(ctx.content)
-#     await discord.message.channel.send("lol")
-    
-
-
-
-@bot.event  
-async def on_message(message):
-    # iterate over list of "banned" words here
-
-    print(f"{message.content}, {message.author}")
-    message_words = str(message.content).split()
-    for x in filtered_words:
-        if x in message_words:
-            admin = False
-            for y in message.author.roles:
-                if y.name == "Generic Bo<T>":
-                    admin = True
-            if not admin:
-                await message.delete()
-            
-        # delete message here
-        
-        await message.channel.purge(limit = 1)
-        await message.channel.send(msg)
-    await bot.process_commands(message)
-
-@bot.event
-async def on_raw_reaction_add(payload):
-    print(payload)
-    res = cur.execute(f"""SELECT Title FROM REGISTERED_MESSAGES WHERE
-        (GuildID = {int(payload.guild_id)} AND ChannelID = {int(payload.channel_id)} AND MessageID = {int(payload.message_id)});""")
-    results = res.fetchall()
-    
-    try:
-        title = results[0][0]
-        res = cur.execute(f"""SELECT RoleID FROM REGISTERED_REACTIONS WHERE
-        (GuildID = {int(payload.guild_id)} AND ChannelID = {int(payload.channel_id)} AND Title = '{title}');""")
-        results = res.fetchall()
-        try:
-            roleID = results[0][0]
-            current_guild = bot.get_guild(int(payload.guild_id))
-            await payload.member.add_roles(current_guild.get_role(roleID))
-        except:
-            print("no role associated")
-        # if payload.emoji.name == "🔴":
-        #     print(payload)
-        #     current_guild = bot.get_guild(int(payload.guild_id))
-        #     await payload.member.add_roles(current_guild.get_role(1121295903886676028))
-    except Exception as e:
-        print(f"no roles found {e}")
-
-    
-
-
-@bot.event
-async def on_raw_reaction_remove(payload):
-    print(payload)
-    res = cur.execute(f"""SELECT Title FROM REGISTERED_MESSAGES WHERE
-        (GuildID = {int(payload.guild_id)} AND ChannelID = {int(payload.channel_id)} AND MessageID = {int(payload.message_id)});""")
-    results = res.fetchall()
-    
-    try:
-        title = results[0][0]
-        res = cur.execute(f"""SELECT RoleID FROM REGISTERED_REACTIONS WHERE
-        (GuildID = {int(payload.guild_id)} AND ChannelID = {int(payload.channel_id)} AND Title = '{title}');""")
-        results = res.fetchall()
-        try:
-            roleID = results[0][0]
-            current_guild = bot.get_guild(int(payload.guild_id))
-            current_member = current_guild.get_member(int(payload.user_id))
-            await current_member.remove_roles(current_guild.get_role(roleID))
-        except Exception as e:
-            print(f"no role associated {e}")
-        # if payload.emoji.name == "🔴":
-        #     print(payload)
-        #     current_guild = bot.get_guild(int(payload.guild_id))
-        #     await payload.member.add_roles(current_guild.get_role(1121295903886676028))
-    except Exception as e:
-        print(f"no roles found {e}")
-
-
-# emoji: payload.emoji.name
-# user_id: payload.user_id
-# message_id: payload.message_id
-# member object: payload.member
-# 1118237685069393981 | 1118237685069393981
-
-
 
 bot.run(secrets["API_KEY"])
 
