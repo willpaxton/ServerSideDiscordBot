@@ -297,7 +297,7 @@ async def daily_reminder():
     if daily_reminder_enabled:
         # send a message to the server with all events
         if events:
-            channel_id = 1118237685631434894
+            channel_id = 1219831179843211314
             channel = bot.get_channel(channel_id)
             await channel.send("All Events:\n" + ', '.join([f"{event['description']} on {event['date']}" for event in events]))
         else:
