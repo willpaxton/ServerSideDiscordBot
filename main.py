@@ -429,7 +429,7 @@ async def help_send_message(ctx):
 ### Moderation Tools
 !kick - Kicks a member from the server. Usage: !kick [user to kick]
 !ban - Bans a member from the server. Usage: !ban [user to ban]
-!add_filer_word - Adds words to a filter list.  Usage: !add_filter_word [word to filter]
+!add_filter_word - Adds words to a filter list.  Usage: !add_filter_word [word to filter]
 ### Role Manager
 !create_reaction_role_message - Creates a bot message that will be used to assign reactions to this message to given rules.  Usage: !create_reaction_role_message [Title of Message] Message Content]
 !register_reaction_role - Adds a reaction to the role message. Usage: !register_reaction_role [Title of Message to Add Reaction To] [Emoji] [@Role]
