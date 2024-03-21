@@ -93,6 +93,7 @@ async def check_filter_word(ctx):
 @commands.has_permissions(manage_roles=True)
 async def create_reaction_role_message(ctx, arg1, arg2):
     # arg1 should be a "title"
+    # arg2 is message content
 
     message = await ctx.send(f"[{arg1}] {arg2}")
     # ctx.guild.id
@@ -185,6 +186,7 @@ async def on_message(message):
         await message.channel.send(msg)
     await bot.process_commands(message)
 
+# reaction listener
 @bot.event
 async def on_raw_reaction_add(payload):
     print(payload)
@@ -212,7 +214,7 @@ async def on_raw_reaction_add(payload):
 
     
 
-
+# reaction listener
 @bot.event
 async def on_raw_reaction_remove(payload):
     print(payload)
